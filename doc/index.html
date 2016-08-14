@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>media_player</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>media_player</strong></li>
+</ul>
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="topics/README.md.html">README</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>media_player</code></h1>
+<p>
+
+</p>
+<p>
+
+</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Copyright</strong>: 2016 Stefano Mazzucco</li>
+        <li><strong>License</strong>: GNU GPL, version 3 or later</li>
+        <li><strong>Author</strong>: Stefano Mazzucco <stefano AT curso DOT re></li>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#get_year">get_year (date)</a></td>
+	<td class="summary">Get the year from an <a href="https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/#index2h3">Mpris date</a>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#media_player.MediaPlayer:new">media_player.MediaPlayer:new (name)</a></td>
+	<td class="summary">Create a new MediaPlayer object that implements the
+ org.mpris.MediaPlayer2.Player DBus interface.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#media_player.MediaPlayer:play">media_player.MediaPlayer:play ()</a></td>
+	<td class="summary">Toggle play/pause.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#media_player.MediaPlayer:stop">media_player.MediaPlayer:stop ()</a></td>
+	<td class="summary">Stop playback.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#media_player.MediaPlayer:previous">media_player.MediaPlayer:previous ()</a></td>
+	<td class="summary">Go to the previous track in the playlist.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#media_player.MediaPlayer:next">media_player.MediaPlayer:next ()</a></td>
+	<td class="summary">Go to the next track in the playlist.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#media_player.MediaPlayer:position">media_player.MediaPlayer:position ()</a></td>
+	<td class="summary">Return the current position of the track in microseconds.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#media_player.MediaPlayer:position_as_str">media_player.MediaPlayer:position_as_str ()</a></td>
+	<td class="summary">Return the position of the track as a string of the type
+ <code>HH:MM:SS</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#media_player.MediaPlayer:metadata">media_player.MediaPlayer:metadata ()</a></td>
+	<td class="summary">Return the <a href="https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/">metadata</a>
+ associated to the current track.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#media_player.MediaPlayer:info">media_player.MediaPlayer:info ()</a></td>
+	<td class="summary">Return useful information about the track.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "get_year"></a>
+    <strong>get_year (date)</strong>
+    </dt>
+    <dd>
+    Get the year from an <a href="https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/#index2h3">Mpris date</a>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">date</span>
+         String representing an Mpris date.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The year as a string or nil.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "media_player.MediaPlayer:new"></a>
+    <strong>media_player.MediaPlayer:new (name)</strong>
+    </dt>
+    <dd>
+    Create a new MediaPlayer object that implements the
+ org.mpris.MediaPlayer2.Player DBus interface.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         The name of the player
+ The DBus well-known name org.mpris.MediaPlayer2.Player.<code>name</code>
+ <strong>must</strong> exist for the object to work.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "media_player.MediaPlayer:play"></a>
+    <strong>media_player.MediaPlayer:play ()</strong>
+    </dt>
+    <dd>
+    Toggle play/pause.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "media_player.MediaPlayer:stop"></a>
+    <strong>media_player.MediaPlayer:stop ()</strong>
+    </dt>
+    <dd>
+    Stop playback.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "media_player.MediaPlayer:previous"></a>
+    <strong>media_player.MediaPlayer:previous ()</strong>
+    </dt>
+    <dd>
+    Go to the previous track in the playlist.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "media_player.MediaPlayer:next"></a>
+    <strong>media_player.MediaPlayer:next ()</strong>
+    </dt>
+    <dd>
+    Go to the next track in the playlist.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "media_player.MediaPlayer:position"></a>
+    <strong>media_player.MediaPlayer:position ()</strong>
+    </dt>
+    <dd>
+    Return the current position of the track in microseconds.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The current track position in microseconds, between 0 and the
+ <code>&apos;mpris:length&apos;</code> metadata entry.
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="index.html#media_player.MediaPlayer:metadata">media_player.MediaPlayer:metadata</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "media_player.MediaPlayer:position_as_str"></a>
+    <strong>media_player.MediaPlayer:position_as_str ()</strong>
+    </dt>
+    <dd>
+    Return the position of the track as a string of the type
+ <code>HH:MM:SS</code>.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A string of the type <code>HH:MM:SS</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "media_player.MediaPlayer:metadata"></a>
+    <strong>media_player.MediaPlayer:metadata ()</strong>
+    </dt>
+    <dd>
+    Return the <a href="https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/">metadata</a>
+ associated to the current track.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A table containing the metadata.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "media_player.MediaPlayer:info"></a>
+    <strong>media_player.MediaPlayer:info ()</strong>
+    </dt>
+    <dd>
+    Return useful information about the track.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+
+<p> A table with the following string attributes
+ (if available in the track's metadata):</p>
+
+<ul>
+    <li><code>album</code>: name of the album</li>
+    <li><code>title</code>: title of the song</li>
+    <li><code>year</code>: song year</li>
+    <li><code>artists</code>: comma-separated list of artists (may be just one artist)</li>
+    <li><code>length</code>: total lenght of the track as <code>HH:MM:SS</code></li>
+</ul>
+
+
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="index.html#media_player.MediaPlayer:metadata">media_player.MediaPlayer:metadata</a>
+    </ul>
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2016-08-14 21:51:42 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

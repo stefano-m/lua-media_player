@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>media_player</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#An_example">An example </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>README</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../index.html">media_player</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Media Player controls for the Awesome Window Manager with Mpris and DBus</h1>
+
+<p>Use the DBus
+<a href="https://specifications.freedesktop.org/mpris-spec/2.2/">Media Player Remote Interfacing Specification (Mpris)</a>
+to control your media player (e.g.<a href="https://www.videolan.org/"> VLC</a>,
+<a href="https://quodlibet.readthedocs.io/">QuodLibet</a>).</p>
+
+
+<h1>Usage</h1>
+
+<p>Require the <a href="../index.html#">media_player</a> module in your Awesome configuration file
+<code>~/.config/awesome/rc.lua</code> and then create a media player interface
+for each player that implements the Mpris specification.</p>
+
+<p>When creating a media player with a given <code>NAME</code>, the module will
+attempt to connect to a DBus destination called <code>org.mpris.MediaPlayer2.&lt;NAME&gt;</code>.</p>
+
+<p>A media player is created with</p>
+
+
+<pre>
+media_player.MediaPlayer:new(name)
+</pre>
+
+<p>You can create as many players as you want and bind them to different keys.</p>
+
+<p>If you want to display information about the current track, you can use the
+<a href="../index.html#media_player.MediaPlayer:metadata">metadata</a> or <a href="../index.html#media_player.MediaPlayer:info">info</a> methods to extract it and then use it e.g. with Awesome's
+<a href="https://awesomewm.org/doc/api/modules/naughty.html#notify"><code>naughty.notify</code></a>.</p>
+
+<p><a name="An_example"></a></p>
+<h2>An example</h2>
+
+<p>For example:</p>
+
+
+<pre>
+<span class="keyword">local</span> media_player = <span class="global">require</span>(<span class="string">"media_player"</span>)
+<span class="keyword">local</span> quodlibet = media_player.MediaPlayer:new(<span class="string">"quodlibet"</span>)
+<span class="keyword">local</span> vlc =  media_player.MediaPlayer:new(<span class="string">"vlc"</span>)
+</pre>
+
+<p>Then you can bind the keys:</p>
+
+
+<pre>
+awful.util.<span class="global">table</span>.join(
+  <span class="comment">-- QuodLibet bound to the media keys
+</span>  awful.key({}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () quodlibet:play() <span class="keyword">end</span>),
+  awful.key({}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () quodlibet:stop() <span class="keyword">end</span>),
+  awful.key({}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () quodlibet:previous() <span class="keyword">end</span>),
+  awful.key({}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () quodlibet:<span class="global">next</span>() <span class="keyword">end</span>),
+  <span class="comment">-- modkey + i shows useful information from QuodLibet
+</span>  awful.key({modkey}, <span class="string">"i"</span>, <span class="keyword">function</span> ()
+      <span class="keyword">local</span> info = quodlibet:info()
+      naughty.notify({title=info.title, text=info.album})
+  <span class="keyword">end</span>)
+  <span class="comment">-- VLC bound to modkey + media keys
+</span>  awful.key({modkey}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () vlc:play() <span class="keyword">end</span>),
+  awful.key({modkey}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () vlc:stop() <span class="keyword">end</span>),
+  awful.key({modkey}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () vlc:previous() <span class="keyword">end</span>),
+  awful.key({modkey}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () vlc:<span class="global">next</span>() <span class="keyword">end</span>)
+)
+</pre>
+
+<p>Since Awesome calls the functions without passing the object as first parameter,
+we must wrap the call to the object's methods in an anonymous function.</p>
+
+<h1>Documentation</h1>
+
+<p>The documentation can be generated using <a href="http://stevedonovan.github.io/ldoc/">LDoc</a>.
+Running <code>ldoc .</code> in the root of the repository will generate HTML documentation
+in the <code>doc</code> directory.</p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2016-08-14 21:51:42 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
