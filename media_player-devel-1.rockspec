@@ -1,8 +1,8 @@
 package = "media_player"
- version = "0.1.0-1"
+ version = "devel-1"
  source = {
     url = "git://github.com/stefano-m/awesome-media_player",
-    tag = "v0.1.0"
+    tag = "master"
  }
  description = {
     summary = "Control PulseAudio devices using DBus",
@@ -12,7 +12,7 @@ package = "media_player"
  }
  dependencies = {
     "lua >= 5.1",
-    "ldbus_api >= 0.8"
+    "ldbus_api"
  }
  supported_platforms = { "linux" }
  build = {
