@@ -5,8 +5,8 @@ package = "media_player"
     tag = "master"
  }
  description = {
-    summary = "Control PulseAudio devices using DBus",
-    detailed = "Control PulseAudio devices using DBus",
+    summary = "Control your media player in using the DBus Mpris specification",
+    detailed = "Control your media player using the DBus Mpris specification",
     homepage = "https://github.com/stefano-m/awesome-media_player",
     license = "GPL v3"
  }
