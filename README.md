@@ -1,4 +1,4 @@
-# Media Player controls for the Awesome Window Manager with Mpris and DBus
+# Media Player controls for Lua with Mpris and DBus
 
 Use the DBus
 [Media Player Remote Interfacing Specification (Mpris)](https://specifications.freedesktop.org/mpris-spec/2.2/)
@@ -41,16 +41,9 @@ module that provides the low-level DBus bindings
 As usual, you can use the `--local` option if you don't want or can't install
 it system-wide.
 
-## From source
-
-Alternatively, you can copy the `media_player.lua` file in your
-`~/.config/awesome` folder. You will have to install all the dependencies
-manually though (see the `rockspec` file for more information).
-
 # Usage
 
-Require the `media_player` module in your Awesome configuration file
-`~/.config/awesome/rc.lua` and then create a media player interface
+Require the `media_player` module and then create a media player interface
 for each player that implements the Mpris specification.
 
 When creating a media player with a given `NAME`, the module will
@@ -58,15 +51,40 @@ attempt to connect to a DBus destination called `org.mpris.MediaPlayer2.<NAME>`.
 
 A media player is created with
 
-    media_player.MediaPlayer:new(name)
+    local media_player = require("media_player")
+    player = media_player.MediaPlayer:new(name)
+
+You can then use the `play`, `stop`, `previous` and `next` methods to control
+the player.
+
+The `position` and `position_as_str` methods return the position of the track
+in microseconds and as `HH:MM:SS` respectively.
+
+The `metadata` method returns the current track's metadata in a table as per the
+[metadata specification](https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/).
+
+The `info` method returns a subset of the metadata in a table with the following
+keys:
+
+* `album`: name of the album
+* `title`: title of the song
+* `year`: song year
+* `artists`: comma-separated list of artists (may be just one artist)
+* `length`: total lenght of the track as `HH:MM:SS`
+
+See the generated documentation for more detailed information.
+
+## An example using the Awesome Window Manager
+
+Require the `media_player` module in your Awesome configuration file
+`~/.config/awesome/rc.lua` and then create a media player interface
+for each player that implements the Mpris specification.
 
 You can create as many players as you want and bind them to different keys.
 
 If you want to display information about the current track, you can use the
 `metadata` or `info` methods to extract it and then use it e.g. with Awesome's
 [`naughty.notify`](https://awesomewm.org/doc/api/modules/naughty.html#notify).
-
-## An example
 
 For example:
 

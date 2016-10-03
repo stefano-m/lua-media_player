@@ -1,13 +1,13 @@
 package = "media_player"
  version = "devel-1"
  source = {
-    url = "git://github.com/stefano-m/awesome-media_player",
+    url = "git://github.com/stefano-m/lua-media_player",
     tag = "master"
  }
  description = {
     summary = "Control your media player using the DBus Mpris specification",
     detailed = "Control your media player using the DBus Mpris specification",
-    homepage = "https://github.com/stefano-m/awesome-media_player",
+    homepage = "https://github.com/stefano-m/lua-media_player",
     license = "GPL v3"
  }
  dependencies = {
