@@ -8,11 +8,11 @@ package = "media_player"
     summary = "Control your media player using the DBus Mpris specification",
     detailed = "Control your media player using the DBus Mpris specification",
     homepage = "https://github.com/stefano-m/lua-media_player",
-    license = "GPL v3"
+    license = "Apache v2.0"
  }
  dependencies = {
     "lua >= 5.1",
-    "ldbus_api"
+    "dbus_proxy"
  }
  supported_platforms = { "linux" }
  build = {

@@ -29,8 +29,8 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Using_Luarocks">Using Luarocks</a></li>
-<li><a href="#An_example_using_the_Awesome_Window_Manager">An example using the Awesome Window Manager</a></li>
+<li><a href="#Using_Luarocks">Using Luarocks </a></li>
+<li><a href="#An_example_using_the_Awesome_Window_Manager">An example using the Awesome Window Manager </a></li>
 </ul>
 
 
@@ -51,18 +51,9 @@
 <h1>Media Player controls for Lua with Mpris and DBus</h1>
 
 <p>Use the DBus
-<a href="https://specifications.freedesktop.org/mpris-spec/2.2/">Media Player Remote Interfacing Specification (Mpris)</a>
+<a href="https://specifications.freedesktop.org/mpris-spec/latest/">Media Player Remote Interfacing Specification (Mpris)</a>
 to control your media player (e.g.<a href="https://www.videolan.org/"> VLC</a>,
 <a href="https://quodlibet.readthedocs.io/">QuodLibet</a>).</p>
-
-<h1>Requirements</h1>
-
-<p>In addition to the requirements listed in the <code>rockspec</code> file, you will need DBus
-and its header file (<code>dbus.h</code>).</p>
-
-<p>For example, Debian and Ubuntu provide the DBus headers with the <code>libdbus-1-dev</code>
-package, Fedora, RedHad and CentOS provide them with the <code>dbus-devel</code> package,
-while Arch provides them (alongside the binaries) with the <code>libdbus</code> package.</p>
 
 <h1>Installation</h1>
 
@@ -81,21 +72,6 @@ it system-wide</p>
 
 <p>This will ensure that all its dependencies are installed.</p>
 
-<h3>A note about ldbus</h3>
-
-<p>This module depends on the <a href="https://github.com/daurnimator/ldbus"><code>ldbus</code></a>
-module that provides the low-level DBus bindings</p>
-
-
-<pre>
-luarocks install <span class="comment">--server=http://luarocks.org/manifests/daurnimator \
-</span>    ldbus \
-    DBUS_INCDIR=/usr/include/dbus-<span class="number">1.0</span>/ \
-    DBUS_ARCH_INCDIR=/usr/lib/dbus-<span class="number">1.0</span>/include
-</pre>
-
-<p>As usual, you can use the <code>--local</code> option if you don't want or can't install
-it system-wide.</p>
 
 <h1>Usage</h1>
 
@@ -109,20 +85,22 @@ attempt to connect to a DBus destination called <code>org.mpris.MediaPlayer2.&lt
 
 
 <pre>
-<span class="keyword">local</span> media_player = <span class="global">require</span>(<span class="string">"media_player"</span>)
-player = media_player.MediaPlayer:new(name)
+MediaPlayer = <span class="global">require</span>(<span class="string">"media_player"</span>)
+player = MediaPlayer:new(name)
 </pre>
 
-<p>You can then use the <a href="../index.html#media_player.MediaPlayer:play">play</a>, <a href="../index.html#media_player.MediaPlayer:stop">stop</a>, <a href="../index.html#media_player.MediaPlayer:previous">previous</a> and <a href="../index.html#media_player.MediaPlayer:next">next</a> methods to control
-the player.</p>
 
-<p>The <a href="../index.html#media_player.MediaPlayer:position">position</a> and <a href="../index.html#media_player.MediaPlayer:position_as_str">position_as_str</a> methods return the position of the track
-in microseconds and as <code>HH:MM:SS</code> respectively.</p>
+<p>You can then , for example, use the <code>PlayPause</code>, <code>Stop</code>, <code>Previous</code> and <code>Next</code>
+methods to control the player.</p>
 
-<p>The <a href="../index.html#media_player.MediaPlayer:metadata">metadata</a> method returns the current track's metadata in a table as per the
+<p>The <code>Position</code> proeprty and <a href="../index.html#MediaPlayer:position_as_str">position_as_str</a> method return the position of the
+track in microseconds and as <code>HH:MM:SS</code> respectively.</p>
+
+<p>The <code>Metadata</code> property returns the current track's metadata in a table as per
+the
 <a href="https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/">metadata specification</a>.</p>
 
-<p>The <a href="../index.html#media_player.MediaPlayer:info">info</a> method returns a subset of the metadata in a table with the following
+<p>The <a href="../index.html#MediaPlayer:info">info</a> method returns a subset of the metadata in a table with the following
 keys:</p>
 
 <ul>
@@ -139,22 +117,23 @@ keys:</p>
 <h2>An example using the Awesome Window Manager</h2>
 
 <p>Require the <a href="../index.html#">media_player</a> module in your Awesome configuration file
-<code>~/.config/awesome/rc.lua</code> and then create a media player interface
-for each player that implements the Mpris specification.</p>
+<code>~/.config/awesome/rc.lua</code> and then create a media player interface for each
+player that implements the Mpris specification.</p>
 
 <p>You can create as many players as you want and bind them to different keys.</p>
 
-<p>If you want to display information about the current track, you can use the
-<a href="../index.html#media_player.MediaPlayer:metadata">metadata</a> or <a href="../index.html#media_player.MediaPlayer:info">info</a> methods to extract it and then use it e.g. with Awesome's
+<p>If you want to display information about the current track, you can use
+<code>Metadata</code> or <a href="../index.html#MediaPlayer:info">info</a> to extract it and then use it e.g. with
+Awesome's
 <a href="https://awesomewm.org/doc/api/modules/naughty.html#notify"><code>naughty.notify</code></a>.</p>
 
 <p>For example:</p>
 
 
 <pre>
-<span class="keyword">local</span> media_player = <span class="global">require</span>(<span class="string">"media_player"</span>)
-<span class="keyword">local</span> quodlibet = media_player.MediaPlayer:new(<span class="string">"quodlibet"</span>)
-<span class="keyword">local</span> vlc =  media_player.MediaPlayer:new(<span class="string">"vlc"</span>)
+MediaPlayer = <span class="global">require</span>(<span class="string">"media_player"</span>)
+quodlibet = MediaPlayer:new(<span class="string">"quodlibet"</span>)
+vlc = MediaPlayer:new(<span class="string">"vlc"</span>)
 </pre>
 
 <p>Then you can bind the keys:</p>
@@ -163,22 +142,25 @@ for each player that implements the Mpris specification.</p>
 <pre>
 awful.util.<span class="global">table</span>.join(
   <span class="comment">-- QuodLibet bound to the media keys
-</span>  awful.key({}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () quodlibet:play() <span class="keyword">end</span>),
-  awful.key({}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () quodlibet:stop() <span class="keyword">end</span>),
-  awful.key({}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () quodlibet:previous() <span class="keyword">end</span>),
-  awful.key({}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () quodlibet:<span class="global">next</span>() <span class="keyword">end</span>),
+</span>  awful.key({}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () quodlibet:PlayPause() <span class="keyword">end</span>),
+  awful.key({}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () quodlibet:Stop() <span class="keyword">end</span>),
+  awful.key({<span class="string">"Control"</span>}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () quodlibet:Quit() <span class="keyword">end</span>),
+  awful.key({}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () quodlibet:Previous() <span class="keyword">end</span>),
+  awful.key({}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () quodlibet:Next() <span class="keyword">end</span>),
   <span class="comment">-- modkey + i shows useful information from QuodLibet
 </span>  awful.key({modkey}, <span class="string">"i"</span>, <span class="keyword">function</span> ()
       <span class="keyword">local</span> info = quodlibet:info()
       naughty.notify({title=info.title, text=info.album})
   <span class="keyword">end</span>)
   <span class="comment">-- VLC bound to modkey + media keys
-</span>  awful.key({modkey}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () vlc:play() <span class="keyword">end</span>),
-  awful.key({modkey}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () vlc:stop() <span class="keyword">end</span>),
-  awful.key({modkey}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () vlc:previous() <span class="keyword">end</span>),
-  awful.key({modkey}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () vlc:<span class="global">next</span>() <span class="keyword">end</span>)
+</span>  awful.key({modkey}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () vlc:PlayPause() <span class="keyword">end</span>),
+  awful.key({modkey}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () vlc:Stop() <span class="keyword">end</span>),
+  awful.key({<span class="string">"Shift"</span>, <span class="string">"Control"</span>}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () vlc:Quit() <span class="keyword">end</span>),
+  awful.key({modkey}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () vlc:Previous() <span class="keyword">end</span>),
+  awful.key({modkey}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () vlc:Next() <span class="keyword">end</span>)
 )
 </pre>
+
 
 <p>Since Awesome calls the functions without passing the object as first parameter,
 we must wrap the call to the object's methods in an anonymous function.</p>
@@ -193,8 +175,8 @@ in the <code>doc</code> directory.</p>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
-<i style="float:right;">Last updated 2016-10-03 21:24:02 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-04-11 00:09:59 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

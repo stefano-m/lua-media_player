@@ -29,7 +29,7 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Functions">Functions</a></li>
+<li><a href="#Class_MediaPlayer">Class MediaPlayer </a></li>
 </ul>
 
 
@@ -47,64 +47,56 @@
 <div id="content">
 
 <h1>Module <code>media_player</code></h1>
-<p>
+<p>Create proxy objects that implement the
+  <a href="https://specifications.freedesktop.org/mpris-spec/latest/"><code>org.mpris.MediaPlayer2</code></a>
+  DBus interface.</p>
+<p>  The proxy object exposes all the methods an properties of
+  the interface in addition to the methods documented here.  Note that some
+  applications may not implement the full MPRIS specification.</p>
 
-</p>
-<p>
+<p>  This library is implemented on top of the <a href="https://github.com/stefano-m/lua-dbus_proxy"><code>dbus_proxy</code></a> module.</p>
 
-</p>
+<p>  A <code>dbus_proxy.Proxy</code> object <strong>cannot</strong> be created unless the media player
+  application is running.  The MediaPlayer object implemented here works around
+  this limitation by intelligently polling the application and, if does not
+  find it, silently ignoring it.</p>
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">MediaPlayer = require(&quot;media_player&quot;)
+vlc = MediaPlayer:new(&quot;vlc&quot;)
+vlc:PlayPause()
+for k, v in pairs(vlc:info()) do
+  print(k, v)
+end
+vlc:Stop()
+</pre>
+    </ul>
     <h3>Info:</h3>
     <ul>
-        <li><strong>Copyright</strong>: 2016 Stefano Mazzucco</li>
-        <li><strong>License</strong>: GNU GPL, version 3 or later</li>
+        <li><strong>Copyright</strong>: 2017 Stefano Mazzucco</li>
+        <li><strong>License</strong>: Apache License, version 2.0</li>
         <li><strong>Author</strong>: Stefano Mazzucco <stefano AT curso DOT re></li>
     </ul>
 
 
-<h2><a href="#Functions">Functions</a></h2>
+<h2><a href="#Class_MediaPlayer">Class MediaPlayer </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#get_year">get_year (date)</a></td>
-	<td class="summary">Get the year from an <a href="https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/#index2h3">Mpris date</a>.</td>
+	<td class="name" nowrap><a href="#MediaPlayer:Get">MediaPlayer:Get (property_name)</a></td>
+	<td class="summary">Get the value of a property.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#media_player.MediaPlayer:new">media_player.MediaPlayer:new (name)</a></td>
-	<td class="summary">Create a new MediaPlayer object that implements the
- org.mpris.MediaPlayer2.Player DBus interface.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#media_player.MediaPlayer:play">media_player.MediaPlayer:play ()</a></td>
-	<td class="summary">Toggle play/pause.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#media_player.MediaPlayer:stop">media_player.MediaPlayer:stop ()</a></td>
-	<td class="summary">Stop playback.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#media_player.MediaPlayer:previous">media_player.MediaPlayer:previous ()</a></td>
-	<td class="summary">Go to the previous track in the playlist.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#media_player.MediaPlayer:next">media_player.MediaPlayer:next ()</a></td>
-	<td class="summary">Go to the next track in the playlist.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#media_player.MediaPlayer:position">media_player.MediaPlayer:position ()</a></td>
-	<td class="summary">Return the current position of the track in microseconds.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#media_player.MediaPlayer:position_as_str">media_player.MediaPlayer:position_as_str ()</a></td>
+	<td class="name" nowrap><a href="#MediaPlayer:position_as_str">MediaPlayer:position_as_str ()</a></td>
 	<td class="summary">Return the position of the track as a string of the type
  <code>HH:MM:SS</code>.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#media_player.MediaPlayer:metadata">media_player.MediaPlayer:metadata ()</a></td>
-	<td class="summary">Return the <a href="https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/">metadata</a>
- associated to the current track.</td>
+	<td class="name" nowrap><a href="#MediaPlayer:info">MediaPlayer:info ()</a></td>
+	<td class="summary">Return useful information about the track.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#media_player.MediaPlayer:info">media_player.MediaPlayer:info ()</a></td>
-	<td class="summary">Return useful information about the track.</td>
+	<td class="name" nowrap><a href="#MediaPlayer:new">MediaPlayer:new (name)</a></td>
+	<td class="summary">Create a new MediaPlayer proxy object</td>
 	</tr>
 </table>
 
@@ -112,28 +104,34 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Class_MediaPlayer"></a>Class MediaPlayer </h2>
 
     <dl class="function">
     <dt>
-    <a name = "get_year"></a>
-    <strong>get_year (date)</strong>
+    <a name = "MediaPlayer:Get"></a>
+    <strong>MediaPlayer:Get (property_name)</strong>
     </dt>
     <dd>
-    Get the year from an <a href="https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/#index2h3">Mpris date</a>.
+    Get the value of a property.  You should not need to use this
+ method directly. Instead, you should access the property with the dot
+ notation: e.g. <code>player.PropertyName</code>.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">date</span>
-         String representing an Mpris date.
+        <li><span class="parameter">property_name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         the name of a property
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-
-        The year as a string or nil.
+        <li>
+        the value of the property</li>
+        <li>
+        nil if the property is not present or the application is not
+ available</li>
     </ol>
 
 
@@ -141,111 +139,8 @@
 
 </dd>
     <dt>
-    <a name = "media_player.MediaPlayer:new"></a>
-    <strong>media_player.MediaPlayer:new (name)</strong>
-    </dt>
-    <dd>
-    Create a new MediaPlayer object that implements the
- org.mpris.MediaPlayer2.Player DBus interface.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">name</span>
-         The name of the player
- The DBus well-known name org.mpris.MediaPlayer2.Player.<code>name</code>
- <strong>must</strong> exist for the object to work.
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "media_player.MediaPlayer:play"></a>
-    <strong>media_player.MediaPlayer:play ()</strong>
-    </dt>
-    <dd>
-    Toggle play/pause.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "media_player.MediaPlayer:stop"></a>
-    <strong>media_player.MediaPlayer:stop ()</strong>
-    </dt>
-    <dd>
-    Stop playback.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "media_player.MediaPlayer:previous"></a>
-    <strong>media_player.MediaPlayer:previous ()</strong>
-    </dt>
-    <dd>
-    Go to the previous track in the playlist.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "media_player.MediaPlayer:next"></a>
-    <strong>media_player.MediaPlayer:next ()</strong>
-    </dt>
-    <dd>
-    Go to the next track in the playlist.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "media_player.MediaPlayer:position"></a>
-    <strong>media_player.MediaPlayer:position ()</strong>
-    </dt>
-    <dd>
-    Return the current position of the track in microseconds.
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        The current track position in microseconds, between 0 and the
- <code>&apos;mpris:length&apos;</code> metadata entry.
-    </ol>
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="index.html#media_player.MediaPlayer:metadata">media_player.MediaPlayer:metadata</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "media_player.MediaPlayer:position_as_str"></a>
-    <strong>media_player.MediaPlayer:position_as_str ()</strong>
+    <a name = "MediaPlayer:position_as_str"></a>
+    <strong>MediaPlayer:position_as_str ()</strong>
     </dt>
     <dd>
     Return the position of the track as a string of the type
@@ -255,8 +150,10 @@
 
     <h3>Returns:</h3>
     <ol>
-
-        A string of the type <code>HH:MM:SS</code>
+        <li>
+        a string of the type <code>HH:MM:SS</code></li>
+        <li>
+        an empty string if the application is not available</li>
     </ol>
 
 
@@ -264,57 +161,59 @@
 
 </dd>
     <dt>
-    <a name = "media_player.MediaPlayer:metadata"></a>
-    <strong>media_player.MediaPlayer:metadata ()</strong>
-    </dt>
-    <dd>
-    Return the <a href="https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/">metadata</a>
- associated to the current track.
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-        A table containing the metadata.
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "media_player.MediaPlayer:info"></a>
-    <strong>media_player.MediaPlayer:info ()</strong>
+    <a name = "MediaPlayer:info"></a>
+    <strong>MediaPlayer:info ()</strong>
     </dt>
     <dd>
     Return useful information about the track.
+ For full control over the metadata, use <code>player.Metadata</code>.
 
 
 
     <h3>Returns:</h3>
     <ol>
+        <li>
 
-
-<p> A table with the following string attributes
+<p> a table with the following keys
  (if available in the track's metadata):</p>
 
 <ul>
     <li><code>album</code>: name of the album</li>
     <li><code>title</code>: title of the song</li>
     <li><code>year</code>: song year</li>
-    <li><code>artists</code>: comma-separated list of artists (may be just one artist)</li>
+    <li><code>artists</code>: comma-separated list of artists</li>
     <li><code>length</code>: total lenght of the track as <code>HH:MM:SS</code></li>
 </ul>
 
-
+</li>
+        <li>
+        an empty table if the application is not available</li>
     </ol>
 
 
-    <h3>See also:</h3>
+
+
+</dd>
+    <dt>
+    <a name = "MediaPlayer:new"></a>
+    <strong>MediaPlayer:new (name)</strong>
+    </dt>
+    <dd>
+    Create a new MediaPlayer proxy object
+
+
+    <h3>Parameters:</h3>
     <ul>
-         <a href="index.html#media_player.MediaPlayer:metadata">media_player.MediaPlayer:metadata</a>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         name of the application as found in the unique bus name:
+  <code>org.mpris.MediaPlayer2.&lt;name&gt;</code>. E.g. <code>org.mpris.MediaPlayer2.vlc</code>. <code>name</code>
+  will also be exposed as a field of the object (i.e. <code>player.name</code>)
+        </li>
     </ul>
+
+
+
 
 
 </dd>
@@ -324,8 +223,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.5</a></i>
-<i style="float:right;">Last updated 2016-10-03 21:24:02 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-04-11 00:09:59 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

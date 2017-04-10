@@ -1,29 +1,50 @@
 --[[
-  Copyright 2016 Stefano Mazzucco <stefano AT curso DOT re>
+  Copyright 2017 Stefano Mazzucco
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+  http://www.apache.org/licenses/LICENSE-2.0
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
 ]]
 
---[[--
-  @license GNU GPL, version 3 or later
+--[[-- Create proxy objects that implement the
+  [`org.mpris.MediaPlayer2`](https://specifications.freedesktop.org/mpris-spec/latest/)
+  DBus interface.  The proxy object exposes all the methods an properties of
+  the interface in addition to the methods documented here.  Note that some
+  applications may not implement the full MPRIS specification.
+
+  This library is implemented on top of the [`dbus_proxy`](https://github.com/stefano-m/lua-dbus_proxy) module.
+
+  A `dbus_proxy.Proxy` object **cannot** be created unless the media player
+  application is running.  The MediaPlayer object implemented here works around
+  this limitation by intelligently polling the application and, if does not
+  find it, silently ignoring it.
+
+  @license Apache License, version 2.0
   @author Stefano Mazzucco <stefano AT curso DOT re>
-  @copyright 2016 Stefano Mazzucco
+  @copyright 2017 Stefano Mazzucco
+
+  @usage
+  MediaPlayer = require("media_player")
+  vlc = MediaPlayer:new("vlc")
+  vlc:PlayPause()
+  for k, v in pairs(vlc:info()) do
+    print(k, v)
+  end
+  vlc:Stop()
+
 ]]
+local string = string
+local table = table
 
-local ldbus = require("ldbus_api")
-
-local media_player = {}
+local proxy = require("dbus_proxy")
 
 local function time_from_useconds(useconds)
     local s, m, h
@@ -39,126 +60,145 @@ local function time_from_useconds_as_str(useconds)
   return string.format("%02d:%02d:%02d", h, m, s)
 end
 
-local function media_player_dbus_property(tbl, name)
-  local opts = {
-    bus = "session",
-    dest = "org.mpris.MediaPlayer2." .. tbl.name,
-    interface = "org.freedesktop.DBus.Properties",
-    method = "Get",
-    path = "/org/mpris/MediaPlayer2",
-    args = {
-      {sig = "s", value = "org.mpris.MediaPlayer2.Player"},
-      {sig = "s", value = name}
-    }
-  }
-  local dbus_data = ldbus.api.call(opts)
-  assert(#dbus_data == 1, "Dbus property should be 1 element, got " .. #dbus_data)
-  return ldbus.api.get_value(dbus_data[1])
-end
-
-local function media_player_dbus(tbl, method, args)
-  local t = {}
-  for k, v in pairs(tbl.dbus_opts) do
-    t[k] = v
-  end
-  t.method = method
-  t.args = args
-  return t
-end
-
 --- Get the year from an [Mpris date](https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/#index2h3).
--- @param date String representing an Mpris date.
--- @return The year as a string or nil.
-function media_player.get_year(date)
+-- @tparam string date an Mpris date.
+-- @return the year as a string
+-- @return `nil` if the date is invalid
+local function get_year(date)
   if date then
     return date:match("^[0-9][0-9][0-9][0-9]")
   end
   return nil
 end
 
-media_player.MediaPlayer = {}
-
---- Create a new MediaPlayer object that implements the
--- org.mpris.MediaPlayer2.Player DBus interface.
--- @param name The name of the player
--- The DBus well-known name org.mpris.MediaPlayer2.Player.`name`
--- **must** exist for the object to work.
-function media_player.MediaPlayer:new(name)
-  local t = {}
-
-  t.name = name
-  t.dbus_opts = {
-    bus = "session",
-    dest = "org.mpris.MediaPlayer2." .. name,
-    interface = "org.mpris.MediaPlayer2.Player",
-    path = "/org/mpris/MediaPlayer2",
-  }
-
-  setmetatable(t, self)
-  self.__index = self
-  return t
+--- Thin wrapper around pcall and dbus_proxy.Proxy:new
+--
+-- @return ok, value pair as returned by `pcall`. If `ok` is `true`, then
+-- `value` is a `dbus_proxy.Proxy` object. Otherwise, `value` is an error
+-- message (string)
+--
+local function get_proxy(name)
+  return pcall(
+    proxy.Proxy.new,
+    proxy.Proxy,
+    {
+      bus = proxy.Bus.SESSION,
+      name = "org.mpris.MediaPlayer2." .. name,
+      interface = "org.mpris.MediaPlayer2.Player",
+      path = "/org/mpris/MediaPlayer2"
+  })
 end
 
---- Toggle play/pause.
-function media_player.MediaPlayer:play()
-  ldbus.api.call_async(media_player_dbus(self, "PlayPause"))
+--- A dummy table that is returned instead of the actual proxy
+-- if the application is not available.
+local dummy = {}
+setmetatable(dummy, {
+               __call = function () end,
+               __index = {},
+               __newindex = function () end
+})
+
+--- Return whether the application is alive or not.
+local function is_alive(player)
+  -- If Introspect returns nil, it means that we lost
+  -- connection with the application (i.e. stale proxy).
+  local invalid = (player._proxy == dummy)
+    or (player._proxy:Introspect() == nil)
+  if invalid then
+    local ok, p = get_proxy(player.name)
+    if ok then
+      player._proxy = p
+    end
+    return ok
+  end
+  return not invalid
 end
 
---- Stop playback.
-function media_player.MediaPlayer:stop()
-    ldbus.api.call_async(media_player_dbus(self, "Stop"))
+--- @type MediaPlayer
+local MediaPlayer = {}
+
+--- Get the value of a property. You should not need to use this
+-- method directly. Instead, you should access the property with the dot
+-- notation: e.g. `player.PropertyName`.
+--
+-- @tparam string property_name the name of a property
+-- @return the value of the property
+--
+-- @return nil if the property is not present or the application is not
+-- available
+function MediaPlayer:Get(property_name)
+  local p = self._proxy
+  if p == dummy then
+    return nil
+  end
+  return p:Get(self.interface, property_name)
 end
 
---- Go to the previous track in the playlist.
-function media_player.MediaPlayer:previous()
-  ldbus.api.call_async(media_player_dbus(self, "Previous"))
+--- Return properties and methods from the underlying proxy object
+-- transparently. If the proxy is not alive, return no-op values.
+-- Used as `__index` key in the player's metatable.
+local function get_key(player, key)
+  if is_alive(player) then
+
+    if player._proxy.accessors[key] then
+      return MediaPlayer.Get(player, key)
+    end
+
+    local from_proxy = player._proxy[key]
+
+    if type(from_proxy) == "function" then
+      return function (_, ...)
+        return from_proxy(player._proxy, ...)
+      end
+    end
+
+    return from_proxy
+
+  else
+
+    return dummy
+
+  end
 end
 
---- Go to the next track in the playlist.
-function media_player.MediaPlayer:next()
-  ldbus.api.call_async(media_player_dbus(self, "Next"))
-end
-
---- Return the current position of the track in microseconds.
--- @return The current track position in microseconds, between 0 and the
--- `'mpris:length'` metadata entry.
--- @see media_player.MediaPlayer:metadata
-function media_player.MediaPlayer:position()
-  return media_player_dbus_property(self, "Position")
-end
 
 --- Return the position of the track as a string of the type
 -- `HH:MM:SS`.
--- @return A string of the type `HH:MM:SS`
-function media_player.MediaPlayer:position_as_str()
-  return time_from_useconds_as_str(self:position())
-end
-
---- Return the [metadata](https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/)
--- associated to the current track.
--- @return A table containing the metadata.
-function media_player.MediaPlayer:metadata()
-  return media_player_dbus_property(self, "Metadata")
+-- @return a string of the type `HH:MM:SS`
+-- @return an empty string if the application is not available
+function MediaPlayer:position_as_str()
+  local pos = self.Position
+  if pos == dummy then
+    return ""
+  end
+  return time_from_useconds_as_str(pos)
 end
 
 --- Return useful information about the track.
--- @return A table with the following string attributes
+-- For full control over the metadata, use `player.Metadata`.
+--
+-- @return a table with the following keys
 -- (if available in the track's metadata):
 --
--- * `album`: name of the album
--- * `title`: title of the song
--- * `year`: song year
--- * `artists`: comma-separated list of artists (may be just one artist)
--- * `length`: total lenght of the track as `HH:MM:SS`
+-- - `album`: name of the album
+-- - `title`: title of the song
+-- - `year`: song year
+-- - `artists`: comma-separated list of artists
+-- - `length`: total lenght of the track as `HH:MM:SS`
 --
--- @see media_player.MediaPlayer:metadata
-function media_player.MediaPlayer:info()
-  local metadata = self:metadata()
+-- @return an empty table if the application is not available
+--
+function MediaPlayer:info()
+  local metadata = self.Metadata
+
+  if metadata == dummy then
+    return {}
+  end
 
   local info = {
     album = metadata["xesam:album"],
     title = metadata["xesam:title"],
-    year = media_player.get_year(metadata["xesam:contentCreated"])
+    year = get_year(metadata["xesam:contentCreated"])
   }
 
   local artists = metadata["xesam:artist"]
@@ -171,10 +211,31 @@ function media_player.MediaPlayer:info()
   if type(length) == "number" then
     length = time_from_useconds_as_str(length)
   end
-
   info.length = length
 
   return info
 end
 
-return media_player
+--[[-- Create a new MediaPlayer proxy object
+
+  @tparam string name name of the application as found in the unique bus name:
+  `org.mpris.MediaPlayer2.<name>`. E.g. `org.mpris.MediaPlayer2.vlc`. `name`
+  will also be exposed as a field of the object (i.e. `player.name`)
+
+]]
+function MediaPlayer:new(name)
+
+  local ok, p = get_proxy(name)
+
+  local o = {
+    _proxy = ok and p or dummy,
+    name = name,
+    info = self.info,
+    position_as_str = self.position_as_str,
+    Get = self.Get
+  }
+  setmetatable(o, {__index = get_key})
+  return o
+end
+
+return MediaPlayer
