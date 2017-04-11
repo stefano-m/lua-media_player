@@ -106,4 +106,4 @@ we must wrap the call to the object's methods in an anonymous function.
 
 The documentation can be generated using [LDoc](http://stevedonovan.github.io/ldoc/).
 Running `ldoc .` in the root of the repository will generate HTML documentation
-in the `doc` directory.
+in the `docs` directory.
