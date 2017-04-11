@@ -75,7 +75,9 @@ MediaPlayer = require("media_player")
 quodlibet = MediaPlayer:new("quodlibet")
 vlc = MediaPlayer:new("vlc")
 ```
-Then you can bind the keys:
+
+Then you can bind the keys.  In this example, the basic controls are set up,
+plus a notification and bindings to quit the application.
 
 ```lua
 awful.util.table.join(
