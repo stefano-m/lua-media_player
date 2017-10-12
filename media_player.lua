@@ -98,20 +98,36 @@ setmetatable(dummy, {
                __newindex = function () end
 })
 
---- Return whether the application is alive or not.
-local function is_alive(player)
+
+local function is_invalid(player)
   -- If Introspect returns nil, it means that we lost
   -- connection with the application (i.e. stale proxy).
-  local invalid = (player._proxy == dummy)
+  return (player._proxy == dummy)
     or (player._proxy:Introspect() == nil)
+end
+
+--- Try to resurrect the proxy associated with the media player.
+-- If successful, the `_proxy` property of `player` will be set to a new proxy
+-- object. If the proxy is not dead, nothing happens.
+-- @tparam MediaPlayer player The media player
+-- @return whether the proxy was resurrected.
+local function try_resurrect(player)
+  local resurrected
+
+  local invalid = is_invalid(player)
+
   if invalid then
     local ok, p = get_proxy(player.name)
     if ok then
       player._proxy = p
     end
-    return ok
+    resurrected = ok
+  else
+    resurrected = not invalid
   end
-  return not invalid
+
+  return resurrected
+
 end
 
 --- @type MediaPlayer
@@ -138,7 +154,7 @@ end
 -- transparently. If the proxy is not alive, return no-op values.
 -- Used as `__index` key in the player's metatable.
 local function get_key(player, key)
-  if is_alive(player) then
+  if try_resurrect(player) then
 
     if player._proxy.accessors[key] then
       return MediaPlayer.Get(player, key)
