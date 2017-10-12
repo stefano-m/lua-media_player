@@ -133,7 +133,9 @@ end
 --- @type MediaPlayer
 local MediaPlayer = {}
 
---- Get the value of a property. You should not need to use this
+--- **DEPRECATED** This method is left for backwards-compatibility.
+--
+-- Get the value of a property. You should not need to use this
 -- method directly. Instead, you should access the property with the dot
 -- notation: e.g. `player.PropertyName`.
 --
@@ -150,33 +152,51 @@ function MediaPlayer:Get(property_name)
   return p:Get(self.interface, property_name)
 end
 
+
+local function get_from_proxy(player, value_from_proxy)
+  local value
+
+  if type(value_from_proxy) == "function" then
+
+    value = function (_, ...)
+      return value_from_proxy(player._proxy, ...)
+    end
+
+  else
+
+    value = value_from_proxy
+
+  end
+  return value
+end
+
 --- Return properties and methods from the underlying proxy object
 -- transparently. If the proxy is not alive, return no-op values.
 -- Used as `__index` key in the player's metatable.
 local function get_key(player, key)
-  if try_resurrect(player) then
 
-    if player._proxy.accessors[key] then
-      return MediaPlayer.Get(player, key)
-    end
+  local value
 
-    local from_proxy = player._proxy[key]
+  local own_value = rawget(player, key)
 
-    if type(from_proxy) == "function" then
-      return function (_, ...)
-        return from_proxy(player._proxy, ...)
-      end
-    end
+  if own_value ~= nil then
 
-    return from_proxy
+    value = own_value
 
+  elseif try_resurrect(player) then
+
+    local value_from_proxy = player._proxy[key]
+
+    value = get_from_proxy(value_from_proxy)
   else
 
-    return dummy
+    value = dummy
 
   end
-end
 
+  return value
+
+end
 
 --- Return the position of the track as a string of the type
 -- `HH:MM:SS`.
