@@ -139,7 +139,6 @@ end
 --- Try to reconnect the proxy associated with the media player.
 -- If successful, the `_proxy` property of `player` will be set to a new proxy
 -- object. If the proxy is already connected, nothing happens.
--- @tparam MediaPlayer player The media player
 -- @return whether the proxy was reconnected.
 -- @see MediaPlayer:is_connected
 function MediaPlayer:try_reconnect()
