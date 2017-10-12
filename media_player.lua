@@ -98,40 +98,53 @@ setmetatable(dummy, {
                __newindex = function () end
 })
 
-
-local function is_invalid(player)
+local function is_connected(player)
   -- If Introspect returns nil, it means that we lost
   -- connection with the application (i.e. stale proxy).
-  return (player._proxy == dummy)
+  local disconnected =  (player._proxy == dummy)
     or (player._proxy:Introspect() == nil)
+  return not disconnected
 end
 
---- Try to resurrect the proxy associated with the media player.
--- If successful, the `_proxy` property of `player` will be set to a new proxy
--- object. If the proxy is not dead, nothing happens.
--- @tparam MediaPlayer player The media player
--- @return whether the proxy was resurrected.
-local function try_resurrect(player)
-  local resurrected
+local function try_reconnect(player)
+  local is_reconnected
 
-  local invalid = is_invalid(player)
+  local connected = is_connected(player)
 
-  if invalid then
+  if not connected then
     local ok, p = get_proxy(player.name)
     if ok then
       player._proxy = p
     end
-    resurrected = ok
+    is_reconnected = ok
   else
-    resurrected = not invalid
+    is_reconnected = not connected
   end
 
-  return resurrected
+  return is_reconnected
 
 end
 
 --- @type MediaPlayer
 local MediaPlayer = {}
+
+--- Check whether the player object is connected to the actual media player via
+--- DBus
+-- @return whether the player is connected
+-- @see MediaPlayer:try_reconnect
+function MediaPlayer:is_connected()
+  return is_connected(self)
+end
+
+--- Try to reconnect the proxy associated with the media player.
+-- If successful, the `_proxy` property of `player` will be set to a new proxy
+-- object. If the proxy is already connected, nothing happens.
+-- @tparam MediaPlayer player The media player
+-- @return whether the proxy was reconnected.
+-- @see MediaPlayer:is_connected
+function MediaPlayer:try_reconnect()
+  return try_reconnect(self)
+end
 
 --- **DEPRECATED** This method is left for backwards-compatibility.
 --
@@ -183,7 +196,7 @@ local function get_key(player, key)
 
     value = own_value
 
-  elseif try_resurrect(player) then
+  elseif try_reconnect(player) then
 
     local value_from_proxy = player._proxy[key]
 
@@ -268,7 +281,9 @@ function MediaPlayer:new(name)
     name = name,
     info = self.info,
     position_as_str = self.position_as_str,
-    Get = self.Get
+    Get = self.Get,
+    is_connected = self.is_connected,
+    try_reconnect = self.try_reconnect
   }
   setmetatable(o, {__index = get_key})
   return o

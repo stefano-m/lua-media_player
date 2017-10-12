@@ -37,7 +37,10 @@ player = MediaPlayer:new(name)
 You can then , for example, use the `PlayPause`, `Stop`, `Previous` and `Next`
 methods to control the player.
 
-The `Position` proeprty and `position_as_str` method return the position of the
+For more detail, see also the
+[dbus_proxy](https://github.com/stefano-m/lua-dbus_proxy/) documentation.
+
+The `Position` property and `position_as_str` method return the position of the
 track in microseconds and as `HH:MM:SS` respectively.
 
 The `Metadata` property returns the current track's metadata in a table as per
