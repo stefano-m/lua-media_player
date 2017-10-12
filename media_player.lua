@@ -113,6 +113,7 @@ local function try_reconnect(player)
 
   if not connected then
     local ok, p = get_proxy(player.name)
+
     if ok then
       player._proxy = p
     end
@@ -195,11 +196,11 @@ local function get_key(player, key)
 
     value = own_value
 
-  elseif try_reconnect(player) then
+  elseif is_connected(player) or try_reconnect(player) then
 
     local value_from_proxy = player._proxy[key]
+    value = get_from_proxy(player, value_from_proxy)
 
-    value = get_from_proxy(value_from_proxy)
   else
 
     value = dummy
