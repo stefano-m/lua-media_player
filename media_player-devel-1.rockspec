@@ -18,5 +18,5 @@ package = "media_player"
  build = {
     type = "builtin",
     modules = { media_player = "media_player.lua" },
-    copy_directories = { "doc" }
+    copy_directories = { "docs" }
  }
