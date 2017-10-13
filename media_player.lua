@@ -166,20 +166,29 @@ function MediaPlayer:Get(property_name)
 end
 
 
-local function get_from_proxy(player, value_from_proxy)
+local function get_from_proxy(proxy_object, key)
+
   local value
+
+  local value_from_proxy = proxy_object[key]
 
   if type(value_from_proxy) == "function" then
 
     value = function (_, ...)
-      return value_from_proxy(player._proxy, ...)
+      return value_from_proxy(proxy_object, ...)
     end
+
+  elseif proxy_object.accessors[key] then
+
+    -- Ensure we get the most up-to-date value.
+    value = proxy_object:Get(proxy_object.interface, key)
 
   else
 
     value = value_from_proxy
 
   end
+
   return value
 end
 
@@ -198,8 +207,7 @@ local function get_key(player, key)
 
   elseif is_connected(player) or try_reconnect(player) then
 
-    local value_from_proxy = player._proxy[key]
-    value = get_from_proxy(player, value_from_proxy)
+    value = get_from_proxy(player._proxy, key)
 
   else
 
