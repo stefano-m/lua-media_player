@@ -146,9 +146,7 @@ function MediaPlayer:try_reconnect()
   return try_reconnect(self)
 end
 
---- **DEPRECATED** This method is left for backwards-compatibility.
---
--- Get the value of a property. You should not need to use this
+--- Get the value of a property. You should not need to use this
 -- method directly. Instead, you should access the property with the dot
 -- notation: e.g. `player.PropertyName`.
 --
