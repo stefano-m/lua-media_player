@@ -22,11 +22,6 @@
 
   This library is implemented on top of the [`dbus_proxy`](https://github.com/stefano-m/lua-dbus_proxy) module.
 
-  A `dbus_proxy.Proxy` object **cannot** be created unless the media player
-  application is running.  The MediaPlayer object implemented here works around
-  this limitation by intelligently polling the application and, if does not
-  find it, silently ignoring it.
-
   @license Apache License, version 2.0
   @author Stefano Mazzucco <stefano AT curso DOT re>
   @copyright 2017 Stefano Mazzucco
