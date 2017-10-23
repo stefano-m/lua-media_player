@@ -34,8 +34,15 @@ MediaPlayer = require("media_player")
 player = MediaPlayer:new(name)
 ```
 
-You can then , for example, use the `PlayPause`, `Stop`, `Previous` and `Next`
-methods to control the player.
+Use the `is_connected` attribute on the player object to check whether the
+corresponding application can controlled.
+
+For example, say that we want to control `vlc`, but the application has not
+been started. In this case `is_connected` will be `false` and trying to access
+any attribute on the Proxy object will result in an error.
+
+Instead, when `is_connected` is `true`, you can, for example, use the
+`PlayPause`, `Stop`, `Previous` and `Next` methods to control the player.
 
 For more detail, see also the
 [dbus_proxy](https://github.com/stefano-m/lua-dbus_proxy/) documentation.
@@ -85,22 +92,23 @@ plus a notification and bindings to quit the application.
 ```lua
 awful.util.table.join(
   -- QuodLibet bound to the media keys
-  awful.key({}, "XF86AudioPlay", function () quodlibet:PlayPause() end),
-  awful.key({}, "XF86AudioStop", function () quodlibet:Stop() end),
-  awful.key({"Control"}, "XF86AudioStop", function () quodlibet:Quit() end),
-  awful.key({}, "XF86AudioPrev", function () quodlibet:Previous() end),
-  awful.key({}, "XF86AudioNext", function () quodlibet:Next() end),
+  awful.key({}, "XF86AudioPlay", function () quodlibet.is_connected and quodlibet:PlayPause() end),
+  awful.key({}, "XF86AudioStop", function () quodlibet.is_connected and quodlibet:Stop() end),
+  awful.key({"Control"}, "XF86AudioStop", function () quodlibet.is_connected and quodlibet:Quit() end),
+  awful.key({}, "XF86AudioPrev", function () quodlibet.is_connected and quodlibet:Previous() end),
+  awful.key({}, "XF86AudioNext", function () quodlibet.is_connected and quodlibet:Next() end),
   -- modkey + i shows useful information from QuodLibet
   awful.key({modkey}, "i", function ()
-      local info = quodlibet:info()
+      local info = quodlibet.is_connected and quodlibet:info() or
+          {title = "quodlibet", album = "not available"}
       naughty.notify({title=info.title, text=info.album})
   end)
   -- VLC bound to modkey + media keys
-  awful.key({modkey}, "XF86AudioPlay", function () vlc:PlayPause() end),
-  awful.key({modkey}, "XF86AudioStop", function () vlc:Stop() end),
-  awful.key({"Shift", "Control"}, "XF86AudioStop", function () vlc:Quit() end),
-  awful.key({modkey}, "XF86AudioPrev", function () vlc:Previous() end),
-  awful.key({modkey}, "XF86AudioNext", function () vlc:Next() end)
+  awful.key({modkey}, "XF86AudioPlay", function () vlc.is_connected and vlc:PlayPause() end),
+  awful.key({modkey}, "XF86AudioStop", function () vlc.is_connected and vlc:Stop() end),
+  awful.key({"Shift", "Control"}, "XF86AudioStop", function () vlc.is_connected and vlc:Quit() end),
+  awful.key({modkey}, "XF86AudioPrev", function () vlc.is_connected and vlc:Previous() end),
+  awful.key({modkey}, "XF86AudioNext", function () vlc.is_connected and vlc:Next() end)
 )
 ```
 

@@ -71,80 +71,9 @@ local function get_year(date)
   return nil
 end
 
---- Thin wrapper around pcall and dbus_proxy.Proxy:new
---
--- @return ok, value pair as returned by `pcall`. If `ok` is `true`, then
--- `value` is a `dbus_proxy.Proxy` object. Otherwise, `value` is an error
--- message (string)
---
-local function get_proxy(name)
-  return pcall(
-    proxy.Proxy.new,
-    proxy.Proxy,
-    {
-      bus = proxy.Bus.SESSION,
-      name = "org.mpris.MediaPlayer2." .. name,
-      interface = "org.mpris.MediaPlayer2.Player",
-      path = "/org/mpris/MediaPlayer2"
-  })
-end
-
---- A dummy table that is returned instead of the actual proxy
--- if the application is not available.
-local dummy = {}
-setmetatable(dummy, {
-               __call = function () end,
-               __index = {},
-               __newindex = function () end
-})
-
-local function is_connected(player)
-  -- If Introspect returns nil, it means that we lost
-  -- connection with the application (i.e. stale proxy).
-  local disconnected =  (player._proxy == dummy)
-    or (player._proxy:Introspect() == nil)
-  return not disconnected
-end
-
-local function try_reconnect(player)
-  local is_reconnected
-
-  local connected = is_connected(player)
-
-  if not connected then
-    local ok, p = get_proxy(player.name)
-
-    if ok then
-      player._proxy = p
-    end
-    is_reconnected = ok
-  else
-    is_reconnected = not connected
-  end
-
-  return is_reconnected
-
-end
 
 --- @type MediaPlayer
 local MediaPlayer = {}
-
---- Check whether the player object is connected to the actual media player via
---- DBus
--- @return whether the player is connected
--- @see MediaPlayer:try_reconnect
-function MediaPlayer:is_connected()
-  return is_connected(self)
-end
-
---- Try to reconnect the proxy associated with the media player.
--- If successful, the `_proxy` property of `player` will be set to a new proxy
--- object. If the proxy is already connected, nothing happens.
--- @return whether the proxy was reconnected.
--- @see MediaPlayer:is_connected
-function MediaPlayer:try_reconnect()
-  return try_reconnect(self)
-end
 
 --- Get the value of a property. You should not need to use this
 -- method directly. Instead, you should access the property with the dot
@@ -156,65 +85,11 @@ end
 -- @return nil if the property is not present or the application is not
 -- available
 function MediaPlayer:Get(property_name)
-  local p = self._proxy
-  if p == dummy then
+  if self.is_connected then
+    return self.proxy:Get(self.interface, property_name)
+  else
     return nil
   end
-  return p:Get(self.interface, property_name)
-end
-
-
-local function get_from_proxy(proxy_object, key)
-
-  local value
-
-  local value_from_proxy = proxy_object[key]
-
-  if type(value_from_proxy) == "function" then
-
-    value = function (_, ...)
-      return value_from_proxy(proxy_object, ...)
-    end
-
-  elseif proxy_object.accessors[key] then
-
-    -- Ensure we get the most up-to-date value.
-    value = proxy_object:Get(proxy_object.interface, key)
-
-  else
-
-    value = value_from_proxy
-
-  end
-
-  return value
-end
-
---- Return properties and methods from the underlying proxy object
--- transparently. If the proxy is not alive, return no-op values.
--- Used as `__index` key in the player's metatable.
-local function get_key(player, key)
-
-  local value
-
-  local own_value = rawget(player, key)
-
-  if own_value ~= nil then
-
-    value = own_value
-
-  elseif is_connected(player) or try_reconnect(player) then
-
-    value = get_from_proxy(player._proxy, key)
-
-  else
-
-    value = dummy
-
-  end
-
-  return value
-
 end
 
 --- Return the position of the track as a string of the type
@@ -222,11 +97,11 @@ end
 -- @return a string of the type `HH:MM:SS`
 -- @return an empty string if the application is not available
 function MediaPlayer:position_as_str()
-  local pos = self.Position
-  if pos == dummy then
+  if self.is_connected then
+    return time_from_useconds_as_str(self.Position)
+  else
     return ""
   end
-  return time_from_useconds_as_str(pos)
 end
 
 --- Return useful information about the track.
@@ -244,11 +119,12 @@ end
 -- @return an empty table if the application is not available
 --
 function MediaPlayer:info()
-  local metadata = self.Metadata
 
-  if metadata == dummy then
+  if not self.is_connected then
     return {}
   end
+
+  local metadata = self.Metadata
 
   local info = {
     album = metadata["xesam:album"],
@@ -274,24 +150,22 @@ end
 --[[-- Create a new MediaPlayer proxy object
 
   @tparam string name name of the application as found in the unique bus name:
-  `org.mpris.MediaPlayer2.<name>`. E.g. `org.mpris.MediaPlayer2.vlc`. `name`
-  will also be exposed as a field of the object (i.e. `player.name`)
+  `org.mpris.MediaPlayer2.<name>`. E.g. `org.mpris.MediaPlayer2.vlc`. The
+  resulting DBus name will also be exposed as a field of the object
+  (i.e. `player.name`)
 
 ]]
 function MediaPlayer:new(name)
-
-  local ok, p = get_proxy(name)
-
-  local o = {
-    _proxy = ok and p or dummy,
-    name = name,
-    info = self.info,
-    position_as_str = self.position_as_str,
-    Get = self.Get,
-    is_connected = self.is_connected,
-    try_reconnect = self.try_reconnect
+  local opts = {
+    bus = proxy.Bus.SESSION,
+    name = "org.mpris.MediaPlayer2." .. name,
+    interface = "org.mpris.MediaPlayer2.Player",
+    path = "/org/mpris/MediaPlayer2"
   }
-  setmetatable(o, {__index = get_key})
+  local o = proxy.monitored.new(opts)
+  o.position_as_str = self.position_as_str
+  o.info = self.info
+  o.Get = self.Get
   return o
 end
 

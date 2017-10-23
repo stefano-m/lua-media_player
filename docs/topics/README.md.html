@@ -90,8 +90,15 @@ player = MediaPlayer:new(name)
 </pre>
 
 
-<p>You can then , for example, use the <code>PlayPause</code>, <code>Stop</code>, <code>Previous</code> and <code>Next</code>
-methods to control the player.</p>
+<p>Use the <code>is_connected</code> attribute on the player object to check whether the
+corresponding application can controlled.</p>
+
+<p>For example, say that we want to control <code>vlc</code>, but the application has not
+been started. In this case <code>is_connected</code> will be <code>false</code> and trying to access
+any attribute on the Proxy object will result in an error.</p>
+
+<p>Instead, when <code>is_connected</code> is <code>true</code>, you can, for example, use the
+<code>PlayPause</code>, <code>Stop</code>, <code>Previous</code> and <code>Next</code> methods to control the player.</p>
 
 <p>For more detail, see also the
 <a href="https://github.com/stefano-m/lua-dbus_proxy/">dbus_proxy</a> documentation.</p>
@@ -147,22 +154,23 @@ plus a notification and bindings to quit the application.</p>
 <pre>
 awful.util.<span class="global">table</span>.join(
   <span class="comment">-- QuodLibet bound to the media keys
-</span>  awful.key({}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () quodlibet:PlayPause() <span class="keyword">end</span>),
-  awful.key({}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () quodlibet:Stop() <span class="keyword">end</span>),
-  awful.key({<span class="string">"Control"</span>}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () quodlibet:Quit() <span class="keyword">end</span>),
-  awful.key({}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () quodlibet:Previous() <span class="keyword">end</span>),
-  awful.key({}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () quodlibet:Next() <span class="keyword">end</span>),
+</span>  awful.key({}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () quodlibet.is_connected <span class="keyword">and</span> quodlibet:PlayPause() <span class="keyword">end</span>),
+  awful.key({}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () quodlibet.is_connected <span class="keyword">and</span> quodlibet:Stop() <span class="keyword">end</span>),
+  awful.key({<span class="string">"Control"</span>}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () quodlibet.is_connected <span class="keyword">and</span> quodlibet:Quit() <span class="keyword">end</span>),
+  awful.key({}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () quodlibet.is_connected <span class="keyword">and</span> quodlibet:Previous() <span class="keyword">end</span>),
+  awful.key({}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () quodlibet.is_connected <span class="keyword">and</span> quodlibet:Next() <span class="keyword">end</span>),
   <span class="comment">-- modkey + i shows useful information from QuodLibet
 </span>  awful.key({modkey}, <span class="string">"i"</span>, <span class="keyword">function</span> ()
-      <span class="keyword">local</span> info = quodlibet:info()
+      <span class="keyword">local</span> info = quodlibet.is_connected <span class="keyword">and</span> quodlibet:info() <span class="keyword">or</span>
+          {title = <span class="string">"quodlibet"</span>, album = <span class="string">"not available"</span>}
       naughty.notify({title=info.title, text=info.album})
   <span class="keyword">end</span>)
   <span class="comment">-- VLC bound to modkey + media keys
-</span>  awful.key({modkey}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () vlc:PlayPause() <span class="keyword">end</span>),
-  awful.key({modkey}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () vlc:Stop() <span class="keyword">end</span>),
-  awful.key({<span class="string">"Shift"</span>, <span class="string">"Control"</span>}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () vlc:Quit() <span class="keyword">end</span>),
-  awful.key({modkey}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () vlc:Previous() <span class="keyword">end</span>),
-  awful.key({modkey}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () vlc:Next() <span class="keyword">end</span>)
+</span>  awful.key({modkey}, <span class="string">"XF86AudioPlay"</span>, <span class="keyword">function</span> () vlc.is_connected <span class="keyword">and</span> vlc:PlayPause() <span class="keyword">end</span>),
+  awful.key({modkey}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () vlc.is_connected <span class="keyword">and</span> vlc:Stop() <span class="keyword">end</span>),
+  awful.key({<span class="string">"Shift"</span>, <span class="string">"Control"</span>}, <span class="string">"XF86AudioStop"</span>, <span class="keyword">function</span> () vlc.is_connected <span class="keyword">and</span> vlc:Quit() <span class="keyword">end</span>),
+  awful.key({modkey}, <span class="string">"XF86AudioPrev"</span>, <span class="keyword">function</span> () vlc.is_connected <span class="keyword">and</span> vlc:Previous() <span class="keyword">end</span>),
+  awful.key({modkey}, <span class="string">"XF86AudioNext"</span>, <span class="keyword">function</span> () vlc.is_connected <span class="keyword">and</span> vlc:Next() <span class="keyword">end</span>)
 )
 </pre>
 
@@ -181,7 +189,7 @@ in the <code>docs</code> directory.</p>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-10-19 22:36:00 </i>
+<i style="float:right;">Last updated 2017-10-23 23:53:59 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
