@@ -93,7 +93,7 @@ end
 -- @return an empty string if the application is not available
 function MediaPlayer:position_as_str()
   if self.is_connected then
-    return time_from_useconds_as_str(self.Position)
+    return time_from_useconds_as_str(self:Get("Position"))
   else
     return ""
   end
@@ -119,7 +119,7 @@ function MediaPlayer:info()
     return {}
   end
 
-  local metadata = self.Metadata
+  local metadata = self:Get("Metadata")
 
   local info = {
     album = metadata["xesam:album"],
