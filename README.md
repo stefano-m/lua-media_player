@@ -18,6 +18,10 @@ it system-wide
 
 This will ensure that all its dependencies are installed.
 
+## NixOS
+
+If you are on NixOS, you can install this package from
+[nix-stefano-m-overlays](https://github.com/stefano-m/nix-stefano-m-nix-overlays).
 
 # Usage
 
