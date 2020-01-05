@@ -25,6 +25,21 @@ If you are on NixOS, you can install this package from
 
 # Usage
 
+---------
+
+**NOTE**
+
+This library leverages [GLib's GIO
+GDBusProxy](https://developer.gnome.org/gio/stable/GDBusProxy.html#GDBusProxy.description)
+objects via
+[`dbus_proxy`](https://luarocks.org/modules/stefano-m/dbus_proxy). That means
+that you **must** use the code inside a [GLib main event
+loop](https://developer.gnome.org/glib/stable/glib-The-Main-Event-Loop.html#glib-The-Main-Event-Loop.description)
+for it to work. For example, use it with [Awesome WM](https://awesomewm.org/)
+or create your own event loop.
+
+---------
+
 Require the `media_player` module and then create a media player interface
 for each player that implements the Mpris specification.
 
