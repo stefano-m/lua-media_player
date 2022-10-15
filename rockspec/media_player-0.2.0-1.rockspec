@@ -7,7 +7,7 @@ source = {
 description = {
    summary = "Control your media player using the DBus Mpris specification",
    detailed = "Control your media player using the DBus Mpris specification",
-   homepage = "https://github.com/stefano-m/lua-media_player",
+   homepage = "git+https://github.com/stefano-m/lua-media_player",
    license = "Apache v2.0"
 }
 supported_platforms = {
